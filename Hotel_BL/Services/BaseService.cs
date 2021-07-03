@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hotel_BL.HelpClasses;
 
 
 namespace Hotel_BL.Services
@@ -34,13 +35,13 @@ namespace Hotel_BL.Services
 
         public IEnumerable<ProfitByMonthDTO> GetProfitByMonths()
         {
-            DateTime HotelOpeningDate = new DateTime(2019, 2, 1);
+            DateTime HotelOpeningDate = new DateTime(2021, 2, 1);
 
             List<ProfitByMonthDTO> profitByMonths = new List<ProfitByMonthDTO>();
 
-            for(DateTime counter = HotelOpeningDate; counter < DateTime.Now ; counter = counter.AddMonths(1))
+            for(DateTime monthCounter = HotelOpeningDate; monthCounter < DateTime.Now ; monthCounter = monthCounter.AddMonths(1))
             {
-                profitByMonths.Add(GetProfitByOneMonth(counter));
+                profitByMonths.Add(GetProfitByOneMonth(monthCounter));
             }
 
             return profitByMonths;
@@ -59,9 +60,8 @@ namespace Hotel_BL.Services
             var priceCategories = Database.PriceCategories.GetAll();
 
 
-            Interval MonthInterval = new Interval();
-            MonthInterval.Start = month;
-            MonthInterval.End = month.AddMonths(1);
+            Interval MonthInterval = new Interval(month, month.AddMonths(1));
+
 
             Interval BookingInterval = new Interval();
             Interval PriceCategoryInterval = new Interval();
@@ -72,9 +72,9 @@ namespace Hotel_BL.Services
                 BookingInterval.End = booking.LeaveDate; 
                                                           
                 
-                if(MonthInterval.Includes(BookingInterval))
+                if(MonthInterval.IsInclude(BookingInterval))
                 {
-                    days = MonthInterval.DaysIncludes(BookingInterval);
+                    days = MonthInterval.DaysIncludes(BookingInterval);//колличество дней в месяце, в которых была эта бронь
 
                     priceCategoriesForRoom = Mapper.Map<IEnumerable<PriceCategory>, IEnumerable<PriceCategoryDTO>>(priceCategories.Where(p => p.CategoryId == booking.room.CategoryId));
 
@@ -83,9 +83,9 @@ namespace Hotel_BL.Services
                         PriceCategoryInterval.Start = priceCategory.StartDate;
                         PriceCategoryInterval.End = priceCategory.EndDate;
 
-                        if(PriceCategoryInterval.Includes(BookingInterval)) 
+                        if (PriceCategoryInterval.IsInclude(BookingInterval)) 
                         {
-                            profit += priceCategory.Price * BookingInterval.DaysIncludes(PriceCategoryInterval); 
+                            profit += priceCategory.Price * (MonthInterval.DaysIncludes(BookingInterval.IncludeDate(PriceCategoryInterval))); 
                         }
                     }                    
                 }
@@ -147,31 +147,6 @@ namespace Hotel_BL.Services
             Database.Bookings.Create(Mapper.Map<BookingDTO, Booking>(bookingDTO));
             Database.Save();
 
-        }
-    }
-
-    class Interval
-    {
-        public DateTime Start { get; set; }
-        public DateTime End { get; set; }
-        public bool Includes(Interval t)
-        {
-            return t.Start >= Start && t.Start <= End ||
-                t.End <= End && t.End >= Start ||
-                t.Start <= Start && t.End >= End;
-        }
-
-        public int DaysIncludes(Interval t)
-        {
-            int DaysInMonth = (End - Start).Days;
-
-            if (!Includes(t))
-                return 0;
-
-            uint d1 = (t.Start - Start).Days < 0 ? 0 : (uint)(t.Start - Start).Days;
-            uint d2 = (End - t.End).Days < 0 ? 0 : (uint)(End - t.End).Days;    
-
-            return DaysInMonth - (int)d1 - (int)d2; 
         }
     }
 }

@@ -7,7 +7,6 @@ namespace Hotel_API.Models
 {
     public class ProfitByMonthModel
     {
-        public int Id { get; set; }
         public decimal Profit { get; set; }
         public string Month { get; set; }
     }

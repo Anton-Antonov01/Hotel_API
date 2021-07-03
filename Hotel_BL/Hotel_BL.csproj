@@ -53,6 +53,7 @@
     <Compile Include="DTO\PriceCategoryDTO.cs" />
     <Compile Include="DTO\ProfitByMonthDTO.cs" />
     <Compile Include="DTO\RoomDTO.cs" />
+    <Compile Include="HelpClasses\Interval.cs" />
     <Compile Include="Infrastructure\DependencyModule.cs" />
     <Compile Include="Interfaces\IBaseService.cs" />
     <Compile Include="Interfaces\IBookingService.cs" />

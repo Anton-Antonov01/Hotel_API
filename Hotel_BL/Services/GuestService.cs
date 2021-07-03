@@ -62,6 +62,8 @@ namespace Hotel_BL.Services
         {
             var guest = Database.Guests.Get(guestDTO.Id);
             if (guest == null)
+                throw new NullReferenceException();
+            if (Database.Guests.GetAll().Any(g => g.Phone == guestDTO.Phone))
                 throw new ArgumentException();
 
             Database.Guests.Update(Mapper.Map<GuestDTO, Guest>(guestDTO));

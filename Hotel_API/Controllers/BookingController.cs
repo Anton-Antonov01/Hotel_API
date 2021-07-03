@@ -19,13 +19,13 @@ namespace Hotel_API.Controllers
         IBookingService bookingService;
         IRoomService roomService;
         IGuestService guestService;
+        IBaseService baseService;
 
         public BookingController(IBookingService bookingService, IRoomService roomService, IGuestService guestService)
         {
             this.bookingService = bookingService;
             this.roomService = roomService; 
             this.guestService = guestService;
-
 
             Mapper = new MapperConfiguration(
                 cfg => {

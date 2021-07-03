@@ -71,6 +71,8 @@ namespace Hotel_BL.Services
         {
             if (roomDTO.RoomCategory == null || Database.Rooms.Get(roomDTO.Id)==null)
                 throw new ArgumentException();
+            if (Database.Rooms.GetAll().Any(r => r.Name == roomDTO.Name))
+                throw new ArgumentException();
 
             Database.Rooms.Update(Mapper.Map<RoomDTO, Room>(roomDTO));
             Database.Save();

@@ -90,9 +90,13 @@ namespace Hotel_API.Controllers
                 service.UpdateGuest(guestDTO);
                 return request.CreateResponse(HttpStatusCode.OK);
             }
-            catch
+            catch (NullReferenceException ex)
             {
                 return request.CreateResponse(HttpStatusCode.NotFound);
+            }
+            catch(ArgumentException ex)
+            {
+                return request.CreateResponse(HttpStatusCode.BadRequest);
             }
 
         }

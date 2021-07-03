@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Hotel_BL.DTO;
+using Hotel_BL.HelpClasses;
 using Hotel_BL.Interfaces;
 using Hotel_DAL.Entities;
 using Hotel_DAL.Interfaces;
@@ -53,6 +54,9 @@ namespace Hotel_BL.Services
             if (priceCategoryDTO.EndDate < priceCategoryDTO.StartDate)
                 throw new ArgumentException();
 
+            if (!CheckValidDatePriceCategory(priceCategoryDTO))
+                throw new ArgumentException();
+
             Database.PriceCategories.Create(Mapper.Map<PriceCategoryDTO, PriceCategory>(priceCategoryDTO));
             Database.Save();
         }
@@ -63,6 +67,9 @@ namespace Hotel_BL.Services
                 throw new ArgumentException();
 
             if (priceCategoryDTO.Category == null)
+                throw new ArgumentException();
+
+            if(!CheckValidDatePriceCategory(priceCategoryDTO))
                 throw new ArgumentException();
 
 
@@ -80,6 +87,27 @@ namespace Hotel_BL.Services
             Database.Save();
         }
 
+        private bool CheckValidDatePriceCategory(PriceCategoryDTO priceCategoryDTO)
+        {
+            var AllPriceCategoriesToCategory = Database.PriceCategories.GetAll().Where(p => p.CategoryId == priceCategoryDTO.Category.Id);
+
+            Interval PriceCategoryInterval = new Interval();
+            PriceCategoryInterval.Start = priceCategoryDTO.StartDate;
+            PriceCategoryInterval.End = priceCategoryDTO.EndDate;
+
+            Interval ExsistingPriceCategoryInterval = new Interval();
+
+            foreach (var p in AllPriceCategoriesToCategory)
+            {
+                ExsistingPriceCategoryInterval.Start = p.StartDate;
+                ExsistingPriceCategoryInterval.End = p.EndDate;
+
+                if (PriceCategoryInterval.IsInclude(ExsistingPriceCategoryInterval))
+                    return false;
+            }
+
+            return true;
+        }
 
     }
 }

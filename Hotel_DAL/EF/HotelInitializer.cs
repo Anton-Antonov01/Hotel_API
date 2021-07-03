@@ -17,24 +17,24 @@ namespace Hotel_DAL.EF
                 new Category()
                 {
                     Name = "Standard",
-                    Bed = 2
+                    Bed = 1
                    
                 },
                 new Category()
                 {
                     Name = "Standard",
-                    Bed = 1
+                    Bed = 2
                 },
                 new Category()
                 {
                     Name = "Luxe",
-                    Bed = 2
+                    Bed = 1
 
                 },
                 new Category()
                 {
                     Name = "Luxe",
-                    Bed = 1
+                    Bed = 2
                 },
             };
 
@@ -200,8 +200,8 @@ namespace Hotel_DAL.EF
                 {
                     Id = 1,
                     CategoryId = 1,
-                    Price = 150,
-                    StartDate = new DateTime(2019, 3, 15),
+                    Price = 100,
+                    StartDate = new DateTime(2017, 3, 15),
                     EndDate = new DateTime(2022, 3, 15),
                 },
 
@@ -209,8 +209,8 @@ namespace Hotel_DAL.EF
                 {
                     Id = 2,
                     CategoryId = 2,
-                    Price = 100,
-                    StartDate = new DateTime(2019, 3, 15),
+                    Price = 200,
+                    StartDate = new DateTime(2017, 3, 15),
                     EndDate = new DateTime(2022, 3, 15),
                 },
 
@@ -218,8 +218,17 @@ namespace Hotel_DAL.EF
                 {
                     Id = 3,
                     CategoryId = 3,
-                    Price = 450,
-                    StartDate = new DateTime(2019, 3, 15),
+                    Price = 300,
+                    StartDate = new DateTime(2017, 3, 15),
+                    EndDate = new DateTime(2021, 4, 20),
+                },
+
+                new PriceCategory()
+                {
+                    Id = 3,
+                    CategoryId = 3,
+                    Price = 1000,
+                    StartDate = new DateTime(2021, 4, 20),
                     EndDate = new DateTime(2022, 3, 15),
                 },
 
@@ -227,8 +236,8 @@ namespace Hotel_DAL.EF
                 {
                     Id = 4,
                     CategoryId = 4,
-                    Price = 300,
-                    StartDate = new DateTime(2019, 3, 15),
+                    Price = 400,
+                    StartDate = new DateTime(2017, 3, 15),
                     EndDate = new DateTime(2022, 3, 15),
                 },
             };
