@@ -68,8 +68,8 @@ namespace Hotel_BL.Services
 
             foreach (var booking in bookings)
             {    
-                BookingInterval.Start = booking.EnterDate;
-                BookingInterval.End = booking.LeaveDate; 
+                BookingInterval.Start = booking.EnterDate.Date;
+                BookingInterval.End = booking.LeaveDate.Date; 
                                                           
                 
                 if(MonthInterval.IsInclude(BookingInterval))

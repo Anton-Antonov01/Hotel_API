@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Hotel_DAL.EF
 {
-    public class HotelInitializer : DropCreateDatabaseAlways<HotelContext>
+    public class HotelInitializer : DropCreateDatabaseIfModelChanges<HotelContext>
     {
         private void CategoryInitializer(HotelContext context)
         {
