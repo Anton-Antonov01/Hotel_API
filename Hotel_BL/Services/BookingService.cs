@@ -84,7 +84,7 @@ namespace Hotel_BL.Services
 
 
         //Дублирование кода - не хорошо
-        private IEnumerable<RoomDTO> FreeRoomsByDateRange(DateTime firstDate, DateTime secondDate)
+        public IEnumerable<RoomDTO> FreeRoomsByDateRange(DateTime firstDate, DateTime secondDate)
         {
             List<RoomDTO> BookedRoomsForDate = new List<RoomDTO>();
             var bookings = Mapper.Map<IEnumerable<Booking>, IEnumerable<BookingDTO>>(Database.Bookings.GetAll());
@@ -95,6 +95,25 @@ namespace Hotel_BL.Services
                 if (booking.BookingDate <= firstDate && booking.LeaveDate > firstDate ||
                     booking.BookingDate <= firstDate && booking.LeaveDate > secondDate ||
                     booking.BookingDate >= firstDate && booking.LeaveDate < secondDate)
+                {
+                    BookedRoomsForDate.Add(AllRooms.FirstOrDefault(r => r.Id == booking.room.Id));
+                }
+            }
+
+            var NotBookedRooms = AllRooms.Except(BookedRoomsForDate);
+
+            return NotBookedRooms;
+        }
+
+        public IEnumerable<RoomDTO> FreeRoomsByDate(DateTime date)
+        {
+            List<RoomDTO> BookedRoomsForDate = new List<RoomDTO>();
+            var bookings = Mapper.Map<IEnumerable<Booking>, IEnumerable<BookingDTO>>(Database.Bookings.GetAll());
+            var AllRooms = Mapper.Map<IEnumerable<Room>, IEnumerable<RoomDTO>>(Database.Rooms.GetAll());
+
+            foreach (var booking in bookings)
+            {
+                if (booking.BookingDate <= date && booking.LeaveDate > date)
                 {
                     BookedRoomsForDate.Add(AllRooms.FirstOrDefault(r => r.Id == booking.room.Id));
                 }

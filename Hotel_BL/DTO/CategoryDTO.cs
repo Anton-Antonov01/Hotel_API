@@ -11,5 +11,21 @@ namespace Hotel_BL.DTO
         public int Id { get; set; }
         public string Name { get; set; }
         public int Bed { get; set; }
+
+
+        public override bool Equals(object obj)
+        {
+            if (obj is CategoryDTO)
+            {
+                var objCM = obj as CategoryDTO;
+                return this.Id == objCM.Id
+                    && this.Name == objCM.Name
+                    && this.Bed == objCM.Bed;
+            }
+            else
+            {
+                return base.Equals(obj);
+            }
+        }
     }
 }

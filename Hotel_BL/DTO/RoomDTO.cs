@@ -13,7 +13,20 @@ namespace Hotel_BL.DTO
         public CategoryDTO RoomCategory { get; set; }
         public bool Active { get; set; }
 
-
+        public override bool Equals(object obj)
+        {
+            if (obj is RoomDTO)
+            {
+                var objRDTO = obj as RoomDTO;
+                return this.Id == objRDTO.Id
+                    && this.Name == objRDTO.Name
+                    && this.Active == objRDTO.Active;
+            }
+            else
+            {
+                return base.Equals(obj);
+            }
+        }
 
     }
 }

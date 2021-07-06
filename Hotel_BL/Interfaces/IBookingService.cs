@@ -15,5 +15,9 @@ namespace Hotel_BL.Interfaces
         void DeleteBooking(int id);
         void UpdateBooking(BookingDTO bookingDTO);
 
+        IEnumerable<RoomDTO> FreeRoomsByDate(DateTime date);
+
+        IEnumerable<RoomDTO> FreeRoomsByDateRange(DateTime firstDate, DateTime secondDate);
+
     }
 }

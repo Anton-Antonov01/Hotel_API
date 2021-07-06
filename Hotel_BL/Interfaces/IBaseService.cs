@@ -13,10 +13,6 @@ namespace Hotel_BL.Interfaces
 
         IEnumerable<ProfitByMonthDTO> GetProfitByMonths();
 
-        IEnumerable<RoomDTO> FreeRoomsByDate(DateTime date);
 
-        IEnumerable<RoomDTO> FreeRoomsByDateRange(DateTime firstDate, DateTime secondDate);
-
-        void DoBooking(BookingDTO bookingDTO);
     }
 }

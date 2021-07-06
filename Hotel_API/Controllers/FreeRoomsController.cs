@@ -13,10 +13,10 @@ namespace Hotel_API.Controllers
 {
     public class FreeRoomsController : ApiController
     {
-        IBaseService service;
+        IBookingService service;
         IMapper Mapper;
 
-        public FreeRoomsController(IBaseService service)
+        public FreeRoomsController(IBookingService service)
         {
             this.service = service;
 

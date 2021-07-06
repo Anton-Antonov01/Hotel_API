@@ -95,58 +95,8 @@ namespace Hotel_BL.Services
             return ProfitByMonth;
         }
 
-        public IEnumerable<RoomDTO> FreeRoomsByDate(DateTime date)
-        {
-            List<RoomDTO> BookedRoomsForDate = new List<RoomDTO>();
-            var bookings = Mapper.Map<IEnumerable<Booking>, IEnumerable<BookingDTO>>(Database.Bookings.GetAll());
-            var AllRooms = Mapper.Map<IEnumerable<Room>, IEnumerable<RoomDTO>>(Database.Rooms.GetAll());
 
-            foreach(var booking in bookings)
-            {
-                if(booking.BookingDate <= date && booking.LeaveDate > date)
-                {
-                    BookedRoomsForDate.Add(AllRooms.FirstOrDefault(r=> r.Id == booking.room.Id));
-                }
-            }
 
-            var NotBookedRooms = AllRooms.Except(BookedRoomsForDate);
 
-            return NotBookedRooms;
-        }
-
-        public IEnumerable<RoomDTO> FreeRoomsByDateRange(DateTime firstDate, DateTime secondDate)
-        {
-            List<RoomDTO> BookedRoomsForDate = new List<RoomDTO>();
-            var bookings = Mapper.Map<IEnumerable<Booking>, IEnumerable<BookingDTO>>(Database.Bookings.GetAll());
-            var AllRooms = Mapper.Map<IEnumerable<Room>, IEnumerable<RoomDTO>>(Database.Rooms.GetAll());
-
-            foreach (var booking in bookings)
-            {
-                if (booking.BookingDate <= firstDate && booking.LeaveDate > firstDate ||
-                    booking.BookingDate <= firstDate && booking.LeaveDate > secondDate ||
-                    booking.BookingDate >= firstDate && booking.LeaveDate < secondDate )
-                {
-                    BookedRoomsForDate.Add(AllRooms.FirstOrDefault(r => r.Id == booking.room.Id));
-                }
-            }
-
-            var NotBookedRooms = AllRooms.Except(BookedRoomsForDate);
-
-            return NotBookedRooms;
-        }
-
-        public void DoBooking(BookingDTO bookingDTO)
-        {
-            if (Database.Rooms.Get(bookingDTO.room.Id) == null ||
-                Database.Guests.Get(bookingDTO.guest.Id) == null)
-                throw new ArgumentException();
-
-            if(!FreeRoomsByDateRange(bookingDTO.BookingDate,bookingDTO.LeaveDate).Any(freeRoom=>  bookingDTO.room.Id == freeRoom.Id ))
-                throw new ArgumentException();
-
-            Database.Bookings.Create(Mapper.Map<BookingDTO, Booking>(bookingDTO));
-            Database.Save();
-
-        }
     }
 }

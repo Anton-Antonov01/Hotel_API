@@ -51,7 +51,7 @@ namespace Hotel_API.Controllers
         {
             try
             {
-                var roomDTO = roomService.Get(id);
+                var roomDTO = roomService.Get(1);
                 var roomModel = Mapper.Map<RoomDTO, RoomModel>(roomDTO);
                 return request.CreateResponse(HttpStatusCode.OK, roomModel);
             }

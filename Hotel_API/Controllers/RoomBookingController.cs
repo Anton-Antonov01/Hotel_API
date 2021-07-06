@@ -58,7 +58,7 @@ namespace Hotel_API.Controllers
                 //bookingDTO.BookingDate = DateTime.Now;
                 bookingDTO.LeaveDate = roomBooking.EnterDate.AddDays(roomBooking.NumberOfDays);
 
-                baseService.DoBooking(bookingDTO);
+                bookingservice.AddBooking(bookingDTO);
                 return request.CreateResponse(HttpStatusCode.OK);
             }
             catch
