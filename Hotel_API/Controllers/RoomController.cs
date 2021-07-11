@@ -51,11 +51,11 @@ namespace Hotel_API.Controllers
         {
             try
             {
-                var roomDTO = roomService.Get(1);
+                var roomDTO = roomService.Get(id);
                 var roomModel = Mapper.Map<RoomDTO, RoomModel>(roomDTO);
                 return request.CreateResponse(HttpStatusCode.OK, roomModel);
             }
-            catch(ArgumentException ex)
+            catch(NullReferenceException ex)
             {
                 return request.CreateResponse(HttpStatusCode.NotFound);
             }
@@ -85,6 +85,11 @@ namespace Hotel_API.Controllers
             {
                 return request.CreateResponse(HttpStatusCode.BadRequest);
             }
+            catch (NullReferenceException ex)
+            {
+                return request.CreateResponse(HttpStatusCode.BadRequest);
+            }
+
         }
 
         /// <summary>
@@ -110,6 +115,10 @@ namespace Hotel_API.Controllers
             {
                 return request.CreateResponse(HttpStatusCode.BadRequest);
             }
+            catch( NullReferenceException ex)
+            {
+                return request.CreateResponse(HttpStatusCode.BadRequest);
+            }
         }
 
         /// <summary>
@@ -124,7 +133,7 @@ namespace Hotel_API.Controllers
                 roomService.DeleteRoom(id);
                 return request.CreateResponse(HttpStatusCode.OK);
             }
-            catch (ArgumentException ex)
+            catch (NullReferenceException ex)
             {
                 return request.CreateResponse(HttpStatusCode.NotFound);
             }

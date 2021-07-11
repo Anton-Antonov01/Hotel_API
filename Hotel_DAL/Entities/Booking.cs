@@ -27,5 +27,22 @@ namespace Hotel_DAL.Entities
         [ForeignKey("RoomId")]
         [JsonIgnore]
         public virtual Room room { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Booking)
+            {
+                var objCM = obj as Booking;
+                return this.Id == objCM.Id
+                    && this.BookingDate == objCM.BookingDate
+                    && this.EnterDate == objCM.EnterDate
+                    && this.LeaveDate == objCM.LeaveDate
+                    && this.Set == objCM.Set; //Добавить сравнение комнаты и гостя
+            }
+            else
+            {
+                return base.Equals(obj);
+            }
+        }
     }
 }

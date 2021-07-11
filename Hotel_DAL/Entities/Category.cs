@@ -20,5 +20,21 @@ namespace Hotel_DAL.Entities
 
         [JsonIgnore]
         public virtual ICollection<PriceCategory> PriceCategories { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Category)
+            {
+                var objCM = obj as Category;
+                return this.Id == objCM.Id
+                    && this.Name == objCM.Name
+                    && this.Bed == objCM.Bed;
+            }
+            else
+            {
+                return base.Equals(obj);
+            }
+        }
+
     }
 }

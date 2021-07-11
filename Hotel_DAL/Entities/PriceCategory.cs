@@ -22,5 +22,23 @@ namespace Hotel_DAL.Entities
         [ForeignKey("CategoryId")]
         [JsonIgnore]
         public virtual Category Category { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is PriceCategory)
+            {
+                var objPC = obj as PriceCategory;
+                return this.Id == objPC.Id
+                    && this.Price == objPC.Price
+                    && this.StartDate == objPC.StartDate
+                    && this.EndDate == objPC.EndDate
+                    && this.CategoryId == objPC.CategoryId;
+                //Добавить сравнение категории
+            }
+            else
+            {
+                return base.Equals(obj);
+            }
+        }
     }
 }

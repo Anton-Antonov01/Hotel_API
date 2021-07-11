@@ -33,7 +33,7 @@ namespace Hotel_BL.Services
         {
             var priceCategory = Database.PriceCategories.Get(id);
             if (priceCategory == null)
-                throw new ArgumentException();
+                throw new NullReferenceException();
 
             return Mapper.Map<PriceCategory, PriceCategoryDTO>(priceCategory);
         }
@@ -49,7 +49,7 @@ namespace Hotel_BL.Services
         public void AddPriceCategory(PriceCategoryDTO priceCategoryDTO)
         {
             if (priceCategoryDTO.Category == null)
-                throw new ArgumentException();
+                throw new NullReferenceException();
 
             if (priceCategoryDTO.EndDate < priceCategoryDTO.StartDate)
                 throw new ArgumentException();
@@ -67,9 +67,12 @@ namespace Hotel_BL.Services
                 throw new ArgumentException();
 
             if (priceCategoryDTO.Category == null)
-                throw new ArgumentException();
+                throw new NullReferenceException();
 
-            if(!CheckValidDatePriceCategory(priceCategoryDTO))
+            if(!Database.PriceCategories.GetAll().Any(p => p.Id == priceCategoryDTO.Id))
+                throw new NullReferenceException();
+
+            if (!CheckValidDatePriceCategory(priceCategoryDTO))
                 throw new ArgumentException();
 
 
@@ -80,7 +83,7 @@ namespace Hotel_BL.Services
         public void DeletePriceCategory(int id)
         {
             if (Database.PriceCategories.Get(id) == null)
-                throw new ArgumentException();
+                throw new NullReferenceException();
 
 
             Database.PriceCategories.Delete(id);
@@ -102,7 +105,7 @@ namespace Hotel_BL.Services
                 ExsistingPriceCategoryInterval.Start = p.StartDate;
                 ExsistingPriceCategoryInterval.End = p.EndDate;
 
-                if (PriceCategoryInterval.IsInclude(ExsistingPriceCategoryInterval))
+                if (PriceCategoryInterval.IsInclude(ExsistingPriceCategoryInterval) && p.Id != priceCategoryDTO.Id)
                     return false;
             }
 

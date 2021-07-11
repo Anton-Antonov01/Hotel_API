@@ -17,5 +17,22 @@ namespace Hotel_DAL.Entities
 
         [JsonIgnore]
         public virtual ICollection<Booking> Bookings { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Guest)
+            {
+                var objRM = obj as Guest;
+                return this.Id == objRM.Id
+                    && this.Name == objRM.Name
+                    && this.Address == objRM.Address
+                    && this.Phone == objRM.Phone;
+            }
+            else
+            {
+                return base.Equals(obj);
+            }
+        }
+
     }
 }

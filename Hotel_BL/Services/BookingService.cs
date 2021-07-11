@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Hotel_BL.DTO;
+using Hotel_BL.HelpClasses;
 using Hotel_BL.Interfaces;
 using Hotel_DAL.Entities;
 using Hotel_DAL.Interfaces;
@@ -34,7 +35,7 @@ namespace Hotel_BL.Services
         {
             var booking = (Database.Bookings.Get(id));
             if (booking == null)
-                throw new ArgumentException();
+                throw new NullReferenceException();
 
             return Mapper.Map<Booking,BookingDTO>(booking);
         }
@@ -50,7 +51,7 @@ namespace Hotel_BL.Services
         {
             if(Database.Rooms.Get(bookingDTO.room.Id) == null ||
                 Database.Guests.Get(bookingDTO.guest.Id) == null)
-                throw new ArgumentException();
+                throw new NullReferenceException();
 
             if (!FreeRoomsByDateRange(bookingDTO.BookingDate, bookingDTO.LeaveDate).Any(freeRoom => bookingDTO.room.Id == freeRoom.Id))
                 throw new ArgumentException();
@@ -62,7 +63,7 @@ namespace Hotel_BL.Services
         public void DeleteBooking(int id)
         {
             if (Database.Bookings.Get(id) == null)
-                throw new ArgumentException();
+                throw new NullReferenceException();
 
             Database.Bookings.Delete(id);
             Database.Save();
@@ -73,7 +74,7 @@ namespace Hotel_BL.Services
             if (Database.Bookings.Get(bookingDTO.Id) == null ||
                 Database.Rooms.Get(bookingDTO.room.Id) == null ||
                 Database.Guests.Get(bookingDTO.guest.Id) == null)
-                throw new ArgumentException();
+                throw new NullReferenceException();
 
             if (!FreeRoomsByDateRange(bookingDTO.BookingDate, bookingDTO.LeaveDate).Any(freeRoom => bookingDTO.room.Id == freeRoom.Id))
                 throw new ArgumentException();
@@ -83,18 +84,18 @@ namespace Hotel_BL.Services
         }
 
 
-        //Дублирование кода - не хорошо
         public IEnumerable<RoomDTO> FreeRoomsByDateRange(DateTime firstDate, DateTime secondDate)
         {
             List<RoomDTO> BookedRoomsForDate = new List<RoomDTO>();
             var bookings = Mapper.Map<IEnumerable<Booking>, IEnumerable<BookingDTO>>(Database.Bookings.GetAll());
             var AllRooms = Mapper.Map<IEnumerable<Room>, IEnumerable<RoomDTO>>(Database.Rooms.GetAll());
 
+            Interval NewBooking = new Interval(firstDate, secondDate);
+
+
             foreach (var booking in bookings)
             {
-                if (booking.BookingDate <= firstDate && booking.LeaveDate > firstDate ||
-                    booking.BookingDate <= firstDate && booking.LeaveDate > secondDate ||
-                    booking.BookingDate >= firstDate && booking.LeaveDate < secondDate)
+                if (new Interval(booking.BookingDate, booking.LeaveDate).IsInclude(NewBooking))
                 {
                     BookedRoomsForDate.Add(AllRooms.FirstOrDefault(r => r.Id == booking.room.Id));
                 }
@@ -123,6 +124,9 @@ namespace Hotel_BL.Services
 
             return NotBookedRooms;
         }
+
+
+
 
     }
 }

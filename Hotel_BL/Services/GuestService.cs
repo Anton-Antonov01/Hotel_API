@@ -35,7 +35,7 @@ namespace Hotel_BL.Services
         {
             var guest = Database.Guests.Get(id);
             if (guest == null)
-                throw new ArgumentException();
+                throw new NullReferenceException();
             
             return Mapper.Map<Guest, GuestDTO>(guest);
         }
@@ -52,7 +52,7 @@ namespace Hotel_BL.Services
         public void DeleteGuest(int id)
         {
             if (Database.Guests.Get(id) == null)
-                throw new ArgumentException();
+                throw new NullReferenceException();
 
             Database.Guests.Delete(id);
             Database.Save();
@@ -63,7 +63,7 @@ namespace Hotel_BL.Services
             var guest = Database.Guests.Get(guestDTO.Id);
             if (guest == null)
                 throw new NullReferenceException();
-            if (Database.Guests.GetAll().Any(g => g.Phone == guestDTO.Phone))
+            if (Database.Guests.GetAll().Any(g => g.Phone == guestDTO.Phone && g.Id != guestDTO.Id))
                 throw new ArgumentException();
 
             Database.Guests.Update(Mapper.Map<GuestDTO, Guest>(guestDTO));

@@ -54,7 +54,7 @@ namespace Hotel_API.Controllers
                 var priceCategoryModel = Mapper.Map<PriceCategoryDTO, PriceCategoryModel>(priceCategoryDTO);
                 return request.CreateResponse(HttpStatusCode.OK, priceCategoryModel);
             }
-            catch (ArgumentException ex)
+            catch (NullReferenceException ex)
             {
                 return request.CreateResponse(HttpStatusCode.NotFound);
             }
@@ -82,7 +82,11 @@ namespace Hotel_API.Controllers
             {
                 return request.CreateResponse(HttpStatusCode.BadRequest);
             }
-            
+            catch (NullReferenceException ex)
+            {
+                return request.CreateResponse(HttpStatusCode.BadRequest);
+            }
+
         }
 
         /// <summary>
@@ -122,7 +126,7 @@ namespace Hotel_API.Controllers
                 priceCategoryService.DeletePriceCategory(id);
                 return request.CreateResponse(HttpStatusCode.OK);
             }
-            catch (ArgumentException ex)
+            catch (NullReferenceException ex)
             {
                 return request.CreateResponse(HttpStatusCode.NotFound);
             }

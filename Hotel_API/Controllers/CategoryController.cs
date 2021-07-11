@@ -52,7 +52,7 @@ namespace Hotel_API.Controllers
                 var categoryModel = Mapper.Map<CategoryDTO, CategoryModel>(service.Get(id));
                 return request.CreateResponse(HttpStatusCode.OK, categoryModel);
             }
-            catch (ArgumentException ex)
+            catch (NullReferenceException ex)
             {
                 return request.CreateResponse(HttpStatusCode.NotFound);
             }
@@ -63,11 +63,18 @@ namespace Hotel_API.Controllers
         /// </summary>
         public HttpResponseMessage Post(HttpRequestMessage request, [FromBody] CategoryRequest category)
         {
-            if (!ModelState.IsValid)
-                return request.CreateResponse(HttpStatusCode.BadRequest);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return request.CreateResponse(HttpStatusCode.BadRequest);
 
-            service.AddCategory(Mapper.Map<CategoryRequest, CategoryDTO>(category));
-            return request.CreateResponse(HttpStatusCode.OK);
+                service.AddCategory(Mapper.Map<CategoryRequest, CategoryDTO>(category));
+                return request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (ArgumentException ex)
+            {
+                return request.CreateResponse(HttpStatusCode.BadRequest);
+            }
         }
 
         /// <summary>
@@ -85,9 +92,13 @@ namespace Hotel_API.Controllers
                 service.UpdateCategory(categoryDTO);
                 return request.CreateResponse(HttpStatusCode.OK);
             }
-            catch(ArgumentException ex)
+            catch(NullReferenceException ex)
             {
                 return request.CreateResponse(HttpStatusCode.NotFound);
+            }
+            catch (ArgumentException ex)
+            {
+                return request.CreateResponse(HttpStatusCode.BadRequest);
             }
         }
 
@@ -104,7 +115,7 @@ namespace Hotel_API.Controllers
                 service.DeleteCategory(id);
                 return request.CreateResponse(HttpStatusCode.OK);
             }
-            catch(ArgumentException ex)
+            catch(NullReferenceException ex)
             {
                 return request.CreateResponse(HttpStatusCode.NotFound);
             }

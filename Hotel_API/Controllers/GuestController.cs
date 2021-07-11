@@ -50,7 +50,7 @@ namespace Hotel_API.Controllers
                 var guestModel = Mapper.Map<GuestDTO, GuestModel>(guestDTO);
                 return request.CreateResponse(HttpStatusCode.OK, guestModel);
             }
-            catch(ArgumentException ex)
+            catch(NullReferenceException ex)
             {
                 return request.CreateResponse(HttpStatusCode.NotFound);
             }
@@ -113,7 +113,7 @@ namespace Hotel_API.Controllers
                 service.DeleteGuest(id);
                 return request.CreateResponse(HttpStatusCode.OK);
             }
-            catch(ArgumentException ex)
+            catch(NullReferenceException ex)
             {
                 return request.CreateResponse(HttpStatusCode.NotFound);
             }
