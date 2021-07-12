@@ -28,14 +28,15 @@ namespace Hotel_API.Controllers
                 ).CreateMapper();
         }
 
+
         /// <summary>
         /// Вывод всех гостей
         /// </summary>
-        public IEnumerable<GuestModel> Get()
+        public HttpResponseMessage Get(HttpRequestMessage request)
         {
             IEnumerable<GuestDTO> guestsDTO = service.GetAllGuests();
 
-            return Mapper.Map<IEnumerable<GuestDTO>, IEnumerable<GuestModel>>(guestsDTO);
+            return request.CreateResponse(HttpStatusCode.OK, Mapper.Map<IEnumerable<GuestDTO>, IEnumerable<GuestModel>>(guestsDTO));
         }
 
         /// <summary>
@@ -94,7 +95,7 @@ namespace Hotel_API.Controllers
             {
                 return request.CreateResponse(HttpStatusCode.NotFound);
             }
-            catch(ArgumentException ex)
+            catch( ArgumentException ex)
             {
                 return request.CreateResponse(HttpStatusCode.BadRequest);
             }

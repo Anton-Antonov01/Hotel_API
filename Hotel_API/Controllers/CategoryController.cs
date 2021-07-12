@@ -33,12 +33,11 @@ namespace Hotel_API.Controllers
         /// <summary>
         /// Вывод всех категорий 
         /// </summary>
-        public IEnumerable<CategoryModel> Get()
+        public HttpResponseMessage Get(HttpRequestMessage request)
         {
-            var categoriesDTO = service.GetAllCategories();
+            IEnumerable<CategoryDTO> categoryDTOList = service.GetAllCategories();
 
-            return Mapper.Map<IEnumerable<CategoryDTO>, IEnumerable<CategoryModel>>(categoriesDTO);
-
+            return request.CreateResponse(HttpStatusCode.OK, Mapper.Map<IEnumerable<CategoryDTO>, IEnumerable<CategoryModel>>(categoryDTOList));
         }
 
         /// <summary>

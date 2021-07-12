@@ -74,7 +74,7 @@ namespace HotelBL.Tests.ServiceTests
             EFWorkUnitMock.Setup(x => x.Guests.Get(GuestId)).Returns(dataForTests.Guests.SingleOrDefault(g => g.Id == GuestId));
 
             //Act
-            var guestResult = guestService.Get(GuestId); //если выбрасывается NullReferenceException - тест пройден
+            var guestResult = guestService.Get(GuestId); 
         }
 
         [TestMethod]

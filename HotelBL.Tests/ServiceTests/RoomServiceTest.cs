@@ -47,7 +47,7 @@ namespace HotelBL.Tests.ServiceTests
         }
 
         [TestMethod]
-        public void GetById_ShouldReturnCategory_WhenCategoryExists()
+        public void GetById_ShouldReturnRoom_WhenRoomExists()
         {
             //Arrange
             var RoomId = 1;
@@ -64,14 +64,14 @@ namespace HotelBL.Tests.ServiceTests
         [TestMethod]
         [ExpectedException(typeof(NullReferenceException),
          "no guest with this id.")]
-        public void GetById_ShouldThrowNullReferenceException_WhenCategoryWithIdNotExsists() //Проверка, если гость с таким id не найден
+        public void GetById_ShouldThrowNullReferenceException_WhenRoomNotExsists() 
         {
             //Arrange
             int RoomId = 5;
             EFWorkUnitMock.Setup(x => x.Rooms.Get(RoomId)).Returns(dataForTests.Rooms.SingleOrDefault(r => r.Id == RoomId));
 
             //Act
-            var guestResult = roomService.Get(RoomId); //если выбрасывается NullReferenceException - тест пройден
+            var guestResult = roomService.Get(RoomId); 
         }
 
         [TestMethod]
@@ -137,10 +137,9 @@ namespace HotelBL.Tests.ServiceTests
         [TestMethod]
         [ExpectedException(typeof(NullReferenceException),
            "RoomCategoryNorExsist")]
-        public void AddCategory_ShouldThrowArgumentException_WhenRoomCategoryNotExsists()
+        public void AddRoom_ShouldThrowArgumentException_WhenRoomCategoryNotExsists()
         {
             //Arrange
-            var Categoryid = 1;
             RoomDTO roomDTO = new RoomDTO { Name = "101", Active = true, RoomCategory = null };
 
 
@@ -153,7 +152,7 @@ namespace HotelBL.Tests.ServiceTests
 
 
         [TestMethod]
-        public void DeleteRoom_ShouldDeleteCategory_WhenCategoryExsists()
+        public void DeleteRoom_ShouldDeleteRoom_WhenRoomExsists()
         {
             //Arrange
             int RoomId = 1;
@@ -183,7 +182,7 @@ namespace HotelBL.Tests.ServiceTests
         }
 
         [TestMethod]
-        public void UpdateCategory_ShouldUpdateCategory_WhenCategoryExsists()
+        public void UpdateRoom_ShouldUpdateRoom_WhenRoomExsists()
         {
             //Arrange
             var Categoryid = 1;
@@ -203,7 +202,7 @@ namespace HotelBL.Tests.ServiceTests
         [TestMethod]
         [ExpectedException(typeof(NullReferenceException),
          "no room with this id.")]
-        public void UpdateCategory_ShouldThrowNullReferenceException_WhenGuestNotExsists()
+        public void UpdateRoom_ShouldThrowNullReferenceException_WhenRoomNotExsists()
         {
             //Arrange
             var Categoryid = 1;
@@ -239,7 +238,7 @@ namespace HotelBL.Tests.ServiceTests
         [TestMethod]
         [ExpectedException(typeof(ArgumentException),
            "Thera are room with same Name")]
-        public void UpdateCategory_ShouldThrowArgumentException_WhenSameCategoryExsists()
+        public void UpdateCategory_ShouldThrowArgumentException_WhenSameRoomExsists()
         {
             //Arrange
             var Categoryid = 1;

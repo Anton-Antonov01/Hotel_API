@@ -71,14 +71,14 @@ namespace HotelBL.Tests.ServiceTests
         [TestMethod]
         [ExpectedException(typeof(NullReferenceException),
          "no Booking with this id.")]
-        public void GetById_ShouldThrowNullReferenceException_WhenBookingWithIdNotExsists() //Проверка, если гость с таким id не найден
+        public void GetById_ShouldThrowNullReferenceException_WhenBookingWithIdNotExsists() 
         {
             //Arrange
             int BookingId = 5;
             EFWorkUnitMock.Setup(x => x.Bookings.Get(BookingId)).Returns(dataForTests.Bookings.SingleOrDefault(r => r.Id == BookingId));
 
             //Act
-            var guestResult = bookingService.Get(BookingId); //если выбрасывается NullReferenceException - тест пройден
+            var guestResult = bookingService.Get(BookingId); 
         }
 
 
@@ -113,7 +113,7 @@ namespace HotelBL.Tests.ServiceTests
         [DataTestMethod]
         [DataRow("2021-03-11", "2021-03-13")]
         [DataRow("2021-03-10", "2021-03-13")]
-        public void AddRoom_ShouldAddRoom(string start, string end)
+        public void AddBooking_ShouldAddBooking(string start, string end)
         {
             //Arrange
             var RoomId = 1;
@@ -401,7 +401,7 @@ namespace HotelBL.Tests.ServiceTests
         [DataRow("2021-03-7", "2021-03-13")]
         [DataRow("2021-03-1", "2021-03-13")]
         [DataRow("2021-03-5", "2021-03-13")]
-        public void UpdateBooking_ShouldThrowNullReferenceException_WhenRoomAlreadyBooking_NewBookingDatesIntoOld(string start, string end)// Новая бронь по датам внутри уже существующей и не граничит с датами ее конца и начала
+        public void UpdateBooking_ShouldThrowNullReferenceException_WhenRoomAlreadyBooking_NewBookingDatesIntoOld(string start, string end)
         {
             var BookingId = 1;
             var RoomId = 1;

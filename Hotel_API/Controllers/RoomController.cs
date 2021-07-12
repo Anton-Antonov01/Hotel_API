@@ -36,10 +36,10 @@ namespace Hotel_API.Controllers
         /// Вывод всех комнат
         /// </summary>
         [HttpGet]
-        public IEnumerable<RoomModel> Get()
+        public HttpResponseMessage Get(HttpRequestMessage request)
         {
             var data = roomService.GetAllRooms();
-            return Mapper.Map<IEnumerable<RoomDTO>, List<RoomModel>>(data);
+            return request.CreateResponse(HttpStatusCode.OK, Mapper.Map<IEnumerable<RoomDTO>, List<RoomModel>>(data));
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace Hotel_API.Controllers
             }
             catch( NullReferenceException ex)
             {
-                return request.CreateResponse(HttpStatusCode.BadRequest);
+                return request.CreateResponse(HttpStatusCode.NotFound);
             }
         }
 

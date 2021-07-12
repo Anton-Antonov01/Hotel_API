@@ -46,8 +46,8 @@ namespace HotelBL.Tests.ServiceTests
         }
 
 
-        [DataTestMethod]//Если тестовые данные изменятся, то нужно переписать профит
-        [DataRow("2021-03", "800" )]//В datarow нельзя использовать decimal
+        [DataTestMethod]
+        [DataRow("2021-03", "800" )]
         [DataRow("2021-04", "14200")]
         [DataRow("2021-05", "19000")]
         public void ProfitOneMonth_ShouldReturnProfitByMonth(string month, string profit)

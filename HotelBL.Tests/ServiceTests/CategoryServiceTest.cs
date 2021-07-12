@@ -73,7 +73,7 @@ namespace HotelBL.Tests.ServiceTests
             EFWorkUnitMock.Setup(x => x.Categories.Get(Categoryid)).Returns(dataForTests.Categories.SingleOrDefault(g => g.Id == Categoryid));
 
             //Act
-            var guestResult = categoryService.Get(Categoryid); //если выбрасывается NullReferenceException - тест пройден
+            var guestResult = categoryService.Get(Categoryid); 
         }
 
 

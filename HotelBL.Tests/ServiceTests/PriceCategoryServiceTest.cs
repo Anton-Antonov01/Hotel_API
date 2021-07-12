@@ -51,7 +51,7 @@ namespace HotelBL.Tests.ServiceTests
         }
 
         [TestMethod]
-        public void GetById_ShouldReturnCategory_WhenCategoryExists()
+        public void GetById_ShouldReturnPriceCategory_WhenPriceCategoryExists()
         {
             //Arrange
             var PriceCategoryId = 1;
@@ -76,7 +76,7 @@ namespace HotelBL.Tests.ServiceTests
             EFWorkUnitMock.Setup(x => x.PriceCategories.Get(PriceCategoryId)).Returns(dataForTests.PriceCategories.SingleOrDefault(r => r.Id == PriceCategoryId));
 
             //Act
-            var PriceCategoryResult = priceCategoryService.Get(PriceCategoryId); //если выбрасывается NullReferenceException - тест пройден
+            var PriceCategoryResult = priceCategoryService.Get(PriceCategoryId); 
         }
 
         [TestMethod]
@@ -224,7 +224,7 @@ namespace HotelBL.Tests.ServiceTests
 
 
         [TestMethod]
-        public void DeleteRoom_ShouldDeleteCategory_WhenCategoryExsists()
+        public void DeletePriceCategory_ShouldDeletePriceCategory_WhenPriceCategoryExsists()
         {
             //Arrange
             int PriceCategoryId = 1;
@@ -241,7 +241,7 @@ namespace HotelBL.Tests.ServiceTests
         [TestMethod]
         [ExpectedException(typeof(NullReferenceException),
          "no PriceCategoty with this id.")]
-        public void DeleteRoom_ShouldThrowNullReferenceException_WhenRoomNotExsists()
+        public void DeletePriceCategory_ShouldThrowNullReferenceException_WhenPriceCategoryNotExsists()
         {
             //Arrange
             int PriceCategoryId = 1111;
@@ -261,7 +261,7 @@ namespace HotelBL.Tests.ServiceTests
         [DataRow("2017-03-15", "2020-02-10")]
         [DataRow("2017-03-15", "2021-04-20")]
         [DataRow("2016-03-15", "2017-03-15")]
-        public void UpdateCategory_ShouldUpdateCategory_WhenCategoryExsists(string start, string end)
+        public void UpdatePriceCategory_ShouldUpdatePriceCategory_WhenPriceCategoryExsists(string start, string end)
         {
             //Arrange
             var CategoryId = 3;
@@ -289,7 +289,7 @@ namespace HotelBL.Tests.ServiceTests
         [TestMethod]
         [ExpectedException(typeof(NullReferenceException),
          "no PriceCategory with this id.")]
-        public void UpdateCategory_ShouldThrowNullReferenceException_WhenGuestNotExsists()
+        public void UpdatePriceCategory_ShouldThrowNullReferenceException_WhenPriceCatNotExsists()
         {
             //Arrange
             var CategoryId = 3;
@@ -315,7 +315,7 @@ namespace HotelBL.Tests.ServiceTests
         [TestMethod]
         [ExpectedException(typeof(NullReferenceException),
            "Category is null")]
-        public void UpdateRoom_ShouldThrowNullReferenceException_WhenCategoryNotExsists()
+        public void UpdatePriceCategory_ShouldThrowNullReferenceException_WhenPriceCategoryNotExsists()
         {
             //Arrange
             var CategoryId = 1111;
@@ -342,7 +342,7 @@ namespace HotelBL.Tests.ServiceTests
         [TestMethod]
         [ExpectedException(typeof(ArgumentException),
            "EndData < StartDate")]
-        public void UpdateCategory_ShouldThrowArgumentException_WhenEndDateLessThenStartDate()
+        public void UpdatePriceCategory_ShouldThrowArgumentException_WhenEndDateLessThenStartDate()
         {
             //Arrange
             var CategoryId = 1111;
@@ -376,7 +376,7 @@ namespace HotelBL.Tests.ServiceTests
         [DataRow("2018-03-15", "2023-03-15")]
         [DataRow("2015-03-15", "2023-03-15")]
         [DataRow("2017-03-15", "2023-03-15")]
-        public void UpdateCategory_ShouldThrowArgumentException__WherePriceCategoriesDatesForOneCategoryOverlap(string start, string end)
+        public void UpdatePriceCategory_ShouldThrowArgumentException__WherePriceCategoriesDatesForOneCategoryOverlap(string start, string end)
         {
             //Arrange
             var CategoryId = 4;

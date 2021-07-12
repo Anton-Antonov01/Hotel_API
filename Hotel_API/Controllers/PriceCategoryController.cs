@@ -36,10 +36,10 @@ namespace Hotel_API.Controllers
         /// <summary>
         /// Вывод всех ценовых категорий
         /// </summary>
-        public IEnumerable<PriceCategoryModel> Get()
+        public HttpResponseMessage Get(HttpRequestMessage request)
         {
             var data = priceCategoryService.GetAllPriceCategories();
-            return Mapper.Map<IEnumerable<PriceCategoryDTO>, IEnumerable<PriceCategoryModel>>(data);
+            return request.CreateResponse(HttpStatusCode.OK ,Mapper.Map<IEnumerable<PriceCategoryDTO>, IEnumerable<PriceCategoryModel>>(data));
         }
 
         /// <summary>
@@ -111,6 +111,10 @@ namespace Hotel_API.Controllers
             catch (ArgumentException ex)
             {
                 return request.CreateResponse(HttpStatusCode.BadRequest);
+            }
+            catch (NullReferenceException ex)
+            {
+                return request.CreateResponse(HttpStatusCode.NotFound);
             }
         }
 

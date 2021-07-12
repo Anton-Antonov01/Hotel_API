@@ -19,7 +19,6 @@ namespace Hotel_API.Controllers
         IBookingService bookingService;
         IRoomService roomService;
         IGuestService guestService;
-        IBaseService baseService;
 
         public BookingController(IBookingService bookingService, IRoomService roomService, IGuestService guestService)
         {
@@ -42,11 +41,11 @@ namespace Hotel_API.Controllers
         /// <summary>
         /// Вывод всех бронирований
         /// </summary>
-        public IEnumerable<BookingModel> Get()
+        public HttpResponseMessage Get(HttpRequestMessage request)
         {
             var booking = bookingService.GetAllBookings();
 
-            return Mapper.Map<IEnumerable<BookingDTO>, IEnumerable<BookingModel>>(booking);
+            return request.CreateResponse(HttpStatusCode.OK, Mapper.Map<IEnumerable<BookingDTO>, IEnumerable<BookingModel>>(booking));
         }
 
 
@@ -124,7 +123,7 @@ namespace Hotel_API.Controllers
             }
             catch (ArgumentException ex)
             {
-                return request.CreateResponse(HttpStatusCode.NotFound);
+                return request.CreateResponse(HttpStatusCode.BadRequest);
             }
             catch (NullReferenceException ex)
             {

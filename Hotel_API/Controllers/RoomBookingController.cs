@@ -18,7 +18,7 @@ namespace Hotel_API.Controllers
         IBookingService bookingservice;
         IRoomService roomService;
         IGuestService guestService;
-        IBaseService baseService;
+
 
 
         public RoomBookingController(IBookingService service, IRoomService roomService, IGuestService guestService, IBaseService baseService)
@@ -26,7 +26,6 @@ namespace Hotel_API.Controllers
             this.bookingservice = service;
             this.roomService = roomService;
             this.guestService = guestService;
-            this.baseService = baseService;
 
 
             Mapper = new MapperConfiguration(
@@ -61,7 +60,11 @@ namespace Hotel_API.Controllers
                 bookingservice.AddBooking(bookingDTO);
                 return request.CreateResponse(HttpStatusCode.OK);
             }
-            catch
+            catch (NullReferenceException)
+            {
+                return request.CreateResponse(HttpStatusCode.BadRequest);
+            }
+            catch (ArgumentException)
             {
                 return request.CreateResponse(HttpStatusCode.BadRequest);
             }

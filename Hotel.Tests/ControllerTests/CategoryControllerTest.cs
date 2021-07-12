@@ -12,6 +12,7 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 
@@ -20,8 +21,8 @@ namespace Hotel.Tests.ControllerTests
     [TestClass]
     public class CategoryControllerTest
     {
+        private readonly CategoryController categoryController;
         IMapper mapper;
-        Mock<IWorkUnit> EFWorkUnitMock;
         Mock<ICategoryService> CategoryServiceMock;
 
         HttpConfiguration httpConfiguration;
@@ -36,9 +37,8 @@ namespace Hotel.Tests.ControllerTests
                 cfg.CreateMap<CategoryDTO, CategoryModel>();
             }).CreateMapper();
 
-            EFWorkUnitMock = new Mock<IWorkUnit>();
             CategoryServiceMock = new Mock<ICategoryService>();
-
+            categoryController = new CategoryController(CategoryServiceMock.Object);
 
             httpConfiguration = new HttpConfiguration();
             httpRequest = new System.Net.Http.HttpRequestMessage();
@@ -46,84 +46,259 @@ namespace Hotel.Tests.ControllerTests
         }
 
         [TestMethod]
-        public void GuestControllerGetTest()
+        public void GetByIdIsHttpResponse()
+        {
+            int CategoryId = 1;
+            CategoryServiceMock.Setup(a => a.Get(CategoryId)).Returns(new CategoryDTO());
+
+            var httpResponse = categoryController.Get(httpRequest, CategoryId);
+
+
+            Assert.IsInstanceOfType(httpResponse, typeof(HttpResponseMessage));
+        }
+
+        [TestMethod]
+        public void GetByIdHttpResponseIsCategoryModel()
+        {
+            int CategoryId = 1;
+            CategoryServiceMock.Setup(a => a.Get(CategoryId)).Returns(new CategoryDTO());
+
+            var httpResponse = categoryController.Get(httpRequest, CategoryId);
+            var result = httpResponse.Content.ReadAsAsync<CategoryModel>();
+
+            Assert.IsInstanceOfType(result.Result, typeof(CategoryModel));
+        }
+
+
+        [TestMethod]
+        public void GetById_ShouldReturnCategoryModel()
         {
             int CategoryId = 1;
 
-            EFWorkUnitMock.Setup(x => x.Categories.Get(CategoryId)).Returns(new Category());
             CategoryServiceMock.Setup(a => a.Get(CategoryId)).Returns(new CategoryDTO());
 
-            var categoryService = new CategoryService(EFWorkUnitMock.Object);
-            CategoryController controller = new CategoryController(CategoryServiceMock.Object);
-
-            var httpResponse = controller.Get(httpRequest, CategoryId);
+            var httpResponse = categoryController.Get(httpRequest, CategoryId);
             var result = httpResponse.Content.ReadAsAsync<CategoryModel>();
-            CategoryModel expected = mapper.Map<CategoryDTO, CategoryModel>(categoryService.Get(CategoryId));
+            CategoryModel expected = mapper.Map<CategoryDTO, CategoryModel>(CategoryServiceMock.Object.Get(CategoryId));
+
             Assert.AreEqual(expected, result.Result);
         }
 
-
         [TestMethod]
-        public void GuestControllerGetAllTest()
+        public void GetById_ShouldReturnOK_WhenCategoryExsists()
         {
-            EFWorkUnitMock.Setup(x => x.Categories.GetAll()).Returns(new List<Category>());
-            CategoryServiceMock.Setup(x => x.GetAllCategories()).Returns(new List<CategoryDTO>());
+            int CategoryId = 11111;
 
-            var categoryService = new CategoryService(EFWorkUnitMock.Object);//Возможно это даже не надо создавать, а в expected присваивать CategoryServiceMock.Object.GetAllCategories()
+            CategoryServiceMock.Setup(a => a.Get(CategoryId)).Returns(new CategoryDTO());
 
-            CategoryController controller = new CategoryController(CategoryServiceMock.Object);
+            var httpResponse = categoryController.Get(httpRequest, CategoryId);
+            var result = httpResponse.StatusCode;
 
-
-            var result = controller.Get();
-
-            IEnumerable<CategoryModel> expected = mapper.Map<IEnumerable<CategoryDTO>, IEnumerable<CategoryModel>>(CategoryServiceMock.Object.GetAllCategories());
-            CollectionAssert.AreEqual(expected.ToList(), result.ToList());
+            Assert.AreEqual(HttpStatusCode.OK, result);
         }
 
 
         [TestMethod]
-        public void GuestControllerPostTest()
+        public void GetById_ShouldReturnNotFound_WhenCategoryNotExsists()
         {
-            EFWorkUnitMock.Setup(x => x.Categories.Create(new Category()));
+            int CategoryId = 11111;
+
+            CategoryServiceMock.Setup(a => a.Get(CategoryId)).Throws(new NullReferenceException());
+
+            var httpResponse = categoryController.Get(httpRequest, CategoryId);
+            var result = httpResponse.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.NotFound, result);
+        }
+
+
+        [TestMethod]
+        public void GetAllIsHttpResponse()
+        {
+            CategoryServiceMock.Setup(a => a.GetAllCategories()).Returns(new List<CategoryDTO>());
+
+            var httpResponse = categoryController.Get(httpRequest);
+
+            Assert.IsInstanceOfType(httpResponse, typeof(HttpResponseMessage));
+        }
+
+        [TestMethod]
+        public void GetAllHttpResponseIsIEnumerableCategoryModel()
+        {
+            CategoryServiceMock.Setup(a => a.GetAllCategories()).Returns(new List<CategoryDTO>());
+
+            var httpResponse = categoryController.Get(httpRequest);
+            var result = httpResponse.Content.ReadAsAsync<IEnumerable<CategoryModel>>();
+
+            Assert.IsInstanceOfType(result.Result, typeof(IEnumerable<CategoryModel>));
+        }
+
+
+        [TestMethod]
+        public void GetAll_ShouldReturnAllCategory()
+        {
+            CategoryServiceMock.Setup(x => x.GetAllCategories()).Returns(new List<CategoryDTO>());
+
+
+            var httpResponse = categoryController.Get(httpRequest);
+            var result = httpResponse.Content.ReadAsAsync<IEnumerable<CategoryModel>>();
+            IEnumerable<CategoryModel> expected = mapper.Map<IEnumerable<CategoryDTO>, IEnumerable<CategoryModel>>(CategoryServiceMock.Object.GetAllCategories());
+
+            CollectionAssert.AreEqual(expected.ToList(), result.Result.ToList());
+        }
+
+        [TestMethod]
+        public void PostIsHttpResponse()
+        {
+            CategoryServiceMock.Setup(a => a.AddCategory(new CategoryDTO()));
+
+            var httpResponse = categoryController.Post(httpRequest, new CategoryRequest());
+
+            Assert.IsInstanceOfType(httpResponse, typeof(HttpResponseMessage));
+        }
+
+        [TestMethod]
+        public void Post_ShouldReturnOK()
+        {
             CategoryServiceMock.Setup(x => x.AddCategory(new CategoryDTO()));
 
-            CategoryController controller = new CategoryController(CategoryServiceMock.Object);
 
-            controller.Post(httpRequest, new CategoryRequest());
+            var httpResponse = categoryController.Post(httpRequest, new CategoryRequest());
+            var result = httpResponse.StatusCode;
 
-            //Похоже суть теста в том, что бы проверить, вызовется ли в контроллере сервис метод с такими же данными ( new GuestDTO() ) 
+            Assert.AreEqual(HttpStatusCode.OK, result);
+        }
+
+        [TestMethod]
+        public void Post_ShouldReturnBadRequest()
+        {
+            CategoryServiceMock.Setup(x => x.AddCategory(new CategoryDTO())).Throws(new ArgumentException());
+
+            var httpResponse = categoryController.Post(httpRequest, new CategoryRequest());
+            var result = httpResponse.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, result);
+        }
+
+        [TestMethod]
+        public void Post_ShouldAddCategory()
+        {
+            CategoryServiceMock.Setup(x => x.AddCategory(new CategoryDTO()));
+
+
+            categoryController.Post(httpRequest, new CategoryRequest());
+
             CategoryServiceMock.Verify(x => x.AddCategory(new CategoryDTO()));
         }
 
 
         [TestMethod]
-        public void GuestControllerDeleteTest()
+        public void DeleteIsHttpResponse()
         {
-            int CategoryId = 1;
-            EFWorkUnitMock.Setup(x => x.Categories.Delete(CategoryId)); //Если вместо Guests сделать Rooms то тест все равно проходит, стра
+            var CategoryId = 1;
+            CategoryServiceMock.Setup(a => a.DeleteCategory(CategoryId));
+
+            var httpResponse = categoryController.Delete(httpRequest, CategoryId);
+
+            Assert.IsInstanceOfType(httpResponse, typeof(HttpResponseMessage));
+        }
+
+        [TestMethod]
+        public void Delete_ShouldReturnOK()
+        {
+            var CategoryId = 1;
+
             CategoryServiceMock.Setup(x => x.DeleteCategory(CategoryId));
 
-            CategoryController controller = new CategoryController(CategoryServiceMock.Object);
+            var httpResponse = categoryController.Delete(httpRequest, CategoryId);
 
-            controller.Delete(httpRequest, CategoryId);
+            var result = httpResponse.StatusCode;
 
+            Assert.AreEqual(HttpStatusCode.OK, result);
+        }
+
+        [TestMethod]
+        public void Delete_ShouldReturnNotFound()
+        {
+            var CategoryId = 1;
+            CategoryServiceMock.Setup(x => x.DeleteCategory(CategoryId)).Throws(new NullReferenceException());
+
+
+            var httpResponse = categoryController.Delete(httpRequest, CategoryId);
+            var result = httpResponse.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.NotFound, result);
+        }
+
+        [TestMethod]
+        public void Delete_ShouldDeleteCategory()
+        {
+            int CategoryId = 1;
+
+            CategoryServiceMock.Setup(x => x.DeleteCategory(CategoryId));
+
+            categoryController.Delete(httpRequest, CategoryId);
 
             CategoryServiceMock.Verify(x => x.DeleteCategory(CategoryId));
         }
 
         [TestMethod]
-        public void RoomControllerUpdateTest()
+        public void PutIsHttpResponse()
         {
             int CategoryId = 1;
-            EFWorkUnitMock.Setup(x => x.Categories.Update(new Category()));
-            CategoryServiceMock.Setup(x => x.UpdateCategory(new CategoryDTO()));
+            CategoryServiceMock.Setup(a => a.UpdateCategory(new CategoryDTO() { Id = CategoryId }));
 
-            CategoryController controller = new CategoryController(CategoryServiceMock.Object);
+            var httpResponse = categoryController.Put(CategoryId, httpRequest, new CategoryRequest());
 
-            controller.Put(CategoryId, httpRequest, new CategoryRequest());
+            Assert.IsInstanceOfType(httpResponse, typeof(HttpResponseMessage));
+        }
 
-            //Похоже суть теста в том, что бы проверить, вызовется ли в контроллере сервис метод с такими же данными 
-            CategoryServiceMock.Verify(x => x.UpdateCategory(new CategoryDTO() { Id = 1 }));
+        [TestMethod]
+        public void Put_ShouldReturnOK()
+        {
+            int CategoryId = 1;
+            CategoryServiceMock.Setup(a => a.UpdateCategory(new CategoryDTO() { Id = CategoryId }));
+
+            var httpResponse = categoryController.Put(CategoryId, httpRequest, new CategoryRequest());
+
+            var result = httpResponse.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.OK, result);
+        }
+
+        [TestMethod]
+        public void Put_ShouldReturnNotFound_WhenNullReferenceException()
+        {
+            int CategoryId = 1;
+            CategoryServiceMock.Setup(a => a.UpdateCategory(new CategoryDTO() { Id = CategoryId })).Throws(new NullReferenceException());
+
+            var httpResponse = categoryController.Put(CategoryId, httpRequest, new CategoryRequest());
+            var result = httpResponse.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.NotFound, result);
+        }
+
+        [TestMethod]
+        public void Put_ShouldReturnBadRequest_WhenArgumentException()
+        {
+            int CategoryId = 1;
+            CategoryServiceMock.Setup(a => a.UpdateCategory(new CategoryDTO() { Id = CategoryId })).Throws(new ArgumentException());
+
+            var httpResponse = categoryController.Put(CategoryId, httpRequest, new CategoryRequest());
+            var result = httpResponse.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, result);
+        }
+
+        [TestMethod]
+        public void Put_ShouldUpdateCategory()
+        {
+            int CategoryId = 1;
+            CategoryServiceMock.Setup(a => a.UpdateCategory(new CategoryDTO() { Id = CategoryId }));
+
+            var httpResponse = categoryController.Put(CategoryId, httpRequest, new CategoryRequest());
+
+            CategoryServiceMock.Verify(x => x.UpdateCategory(new CategoryDTO() { Id = CategoryId }));
         }
     }
 }

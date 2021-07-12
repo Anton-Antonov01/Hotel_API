@@ -11,6 +11,7 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 
@@ -19,11 +20,11 @@ namespace Hotel.Tests.ControllerTests
     [TestClass]
     public class BookingControllerTest
     {
+        private readonly BookingController bookingController;
         IMapper mapper;
-        Mock<IWorkUnit> EFWorkUnitMock;
         Mock<IBookingService> BookingServiceMock;
-        Mock<IGuestService> GuestServiceMock;
         Mock<IRoomService> RoomServiceMock;
+        Mock<IGuestService> GuestServideMock;
 
         HttpConfiguration httpConfiguration;
         HttpRequestMessage httpRequest;
@@ -34,98 +35,276 @@ namespace Hotel.Tests.ControllerTests
             cfg =>
             {
                 cfg.CreateMap<Booking, BookingDTO>();
-                cfg.CreateMap<Room, RoomDTO>();
-                cfg.CreateMap<Guest, GuestDTO>();
                 cfg.CreateMap<BookingDTO, BookingModel>();
+
             }).CreateMapper();
 
-            EFWorkUnitMock = new Mock<IWorkUnit>();
-            RoomServiceMock = new Mock<IRoomService>();
-            GuestServiceMock = new Mock<IGuestService>();
             BookingServiceMock = new Mock<IBookingService>();
+            RoomServiceMock = new Mock<IRoomService>();
+            GuestServideMock = new Mock<IGuestService>();
+
+            bookingController = new BookingController(BookingServiceMock.Object, RoomServiceMock.Object, GuestServideMock.Object);
 
             httpConfiguration = new HttpConfiguration();
-            httpRequest = new System.Net.Http.HttpRequestMessage();
+            httpRequest = new HttpRequestMessage();
             httpRequest.Properties[System.Web.Http.Hosting.HttpPropertyKeys.HttpConfigurationKey] = httpConfiguration;
         }
 
+        [TestMethod]
+        public void GetByIdIsHttpResponse()
+        {
+            int BookingId = 1;
+            BookingServiceMock.Setup(a => a.Get(BookingId)).Returns(new BookingDTO());
+
+            var httpResponse = bookingController.Get(httpRequest, BookingId);
+
+
+            Assert.IsInstanceOfType(httpResponse, typeof(HttpResponseMessage));
+        }
 
         [TestMethod]
-        public void BookingControllerGetTest()
+        public void GetByIdHttpResponseIsGuestModel()
+        {
+            int BookingId = 1;
+            BookingServiceMock.Setup(a => a.Get(BookingId)).Returns(new BookingDTO());
+
+            var httpResponse = bookingController.Get(httpRequest, BookingId);
+            var result = httpResponse.Content.ReadAsAsync<BookingModel>();
+
+            Assert.IsInstanceOfType(result.Result, typeof(BookingModel));
+        }
+
+
+        [TestMethod]
+        public void GetById_ShouldReturnBookingModel()
         {
             int BookingId = 1;
 
-            EFWorkUnitMock.Setup(x => x.Bookings.Get(BookingId)).Returns(new Booking());
             BookingServiceMock.Setup(a => a.Get(BookingId)).Returns(new BookingDTO());
 
-            BookingController controller = new BookingController(BookingServiceMock.Object ,RoomServiceMock.Object, GuestServiceMock.Object);
-
-            var httpResponse = controller.Get(httpRequest, BookingId);
+            var httpResponse = bookingController.Get(httpRequest, BookingId);
             var result = httpResponse.Content.ReadAsAsync<BookingModel>();
             BookingModel expected = mapper.Map<BookingDTO, BookingModel>(BookingServiceMock.Object.Get(BookingId));
+
             Assert.AreEqual(expected, result.Result);
         }
 
-
         [TestMethod]
-        public void BookingControllerGetAllTest()
+        public void GetById_ShouldReturnOK_WhenBookingExsists()
         {
-            EFWorkUnitMock.Setup(x => x.Bookings.GetAll()).Returns(new List<Booking>());
-            BookingServiceMock.Setup(x => x.GetAllBookings()).Returns(new List<BookingDTO>());
+            int BookingId = 11111;
 
-            BookingController controller = new BookingController(BookingServiceMock.Object, RoomServiceMock.Object, GuestServiceMock.Object);
+            BookingServiceMock.Setup(a => a.Get(BookingId)).Returns(new BookingDTO());
 
+            var httpResponse = bookingController.Get(httpRequest, BookingId);
+            var result = httpResponse.StatusCode;
 
-            var result = controller.Get();
-
-            IEnumerable<BookingModel> expected = mapper.Map<IEnumerable<BookingDTO>, IEnumerable<BookingModel>>(BookingServiceMock.Object.GetAllBookings());
-            CollectionAssert.AreEqual(expected.ToList(), result.ToList());
+            Assert.AreEqual(HttpStatusCode.OK, result);
         }
 
 
         [TestMethod]
-        public void BookingControllerPostTest()
+        public void GetById_ShouldReturnNotFound_WhenBookingNotExsists()
         {
-            EFWorkUnitMock.Setup(x => x.Bookings.Create(new Booking()));
+            int BookingId = 11111;
+
+            BookingServiceMock.Setup(a => a.Get(BookingId)).Throws(new NullReferenceException());
+
+            var httpResponse = bookingController.Get(httpRequest, BookingId);
+            var result = httpResponse.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.NotFound, result);
+        }
+
+
+        [TestMethod]
+        public void GetAllIsHttpResponse()
+        {
+            BookingServiceMock.Setup(a => a.GetAllBookings()).Returns(new List<BookingDTO>());
+
+            var httpResponse = bookingController.Get(httpRequest);
+
+            Assert.IsInstanceOfType(httpResponse, typeof(HttpResponseMessage));
+        }
+
+        [TestMethod]
+        public void GetAllHttpResponseIsIEnumerableBookingModel()
+        {
+            BookingServiceMock.Setup(a => a.GetAllBookings()).Returns(new List<BookingDTO>());
+
+            var httpResponse = bookingController.Get(httpRequest);
+            var result = httpResponse.Content.ReadAsAsync<IEnumerable<BookingModel>>();
+
+            Assert.IsInstanceOfType(result.Result, typeof(IEnumerable<BookingModel>));
+        }
+
+
+        [TestMethod]
+        public void GetAll_ShouldReturnAllBookings()
+        {
+            BookingServiceMock.Setup(x => x.GetAllBookings()).Returns(new List<BookingDTO>());
+
+
+            var httpResponse = bookingController.Get(httpRequest);
+            var result = httpResponse.Content.ReadAsAsync<IEnumerable<BookingModel>>();
+            IEnumerable<BookingModel> expected = mapper.Map<IEnumerable<BookingDTO>, IEnumerable<BookingModel>>(BookingServiceMock.Object.GetAllBookings());
+
+            CollectionAssert.AreEqual(expected.ToList(), result.Result.ToList());
+        }
+
+        [TestMethod]
+        public void PostIsHttpResponse()
+        {
+            BookingServiceMock.Setup(a => a.AddBooking(new BookingDTO()));
+
+            var httpResponse = bookingController.Post(httpRequest, new BookingRequest());
+
+            Assert.IsInstanceOfType(httpResponse, typeof(HttpResponseMessage));
+        }
+
+        [TestMethod]
+        public void Post_ShouldReturnOK()
+        {
             BookingServiceMock.Setup(x => x.AddBooking(new BookingDTO()));
 
-            BookingController controller = new BookingController(BookingServiceMock.Object, RoomServiceMock.Object, GuestServiceMock.Object);
 
-            controller.Post(httpRequest, new BookingRequest());
+            var httpResponse = bookingController.Post(httpRequest, new BookingRequest());
+            var result = httpResponse.StatusCode;
 
-            //Похоже суть теста в том, что бы проверить, вызовется ли в контроллере сервис метод с такими же данными ( new RoomDTO() ) 
+            Assert.AreEqual(HttpStatusCode.OK, result);
+        }
+
+        [TestMethod]
+        public void Post_ShouldReturnBadRequest()
+        {
+            BookingServiceMock.Setup(x => x.AddBooking(new BookingDTO())).Throws(new ArgumentException());
+
+            var httpResponse = bookingController.Post(httpRequest, new BookingRequest());
+            var result = httpResponse.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, result);
+        }
+
+        [TestMethod]
+        public void Post_ShouldAddBooking()
+        {
+            BookingServiceMock.Setup(x => x.AddBooking(new BookingDTO()));
+
+
+            bookingController.Post(httpRequest, new BookingRequest());
+
             BookingServiceMock.Verify(x => x.AddBooking(new BookingDTO()));
         }
 
 
         [TestMethod]
-        public void BookingControllerDeleteTest()
+        public void DeleteIsHttpResponse()
         {
-            int BookingId = 1;
-            EFWorkUnitMock.Setup(x => x.Bookings.Delete(BookingId));
+            var BookingId = 1;
+            BookingServiceMock.Setup(a => a.DeleteBooking(BookingId));
+
+            var httpResponse = bookingController.Delete(httpRequest, BookingId);
+
+            Assert.IsInstanceOfType(httpResponse, typeof(HttpResponseMessage));
+        }
+
+        [TestMethod]
+        public void Delete_ShouldReturnOK()
+        {
+            var BookingId = 1;
+
             BookingServiceMock.Setup(x => x.DeleteBooking(BookingId));
 
-            BookingController controller = new BookingController(BookingServiceMock.Object, RoomServiceMock.Object, GuestServiceMock.Object);
+            var httpResponse = bookingController.Delete(httpRequest, BookingId);
 
-            controller.Delete(httpRequest, BookingId);
+            var result = httpResponse.StatusCode;
 
+            Assert.AreEqual(HttpStatusCode.OK, result);
+        }
+
+        [TestMethod]
+        public void Delete_ShouldReturnNotFound()
+        {
+            var BookingId = 1;
+            BookingServiceMock.Setup(x => x.DeleteBooking(BookingId)).Throws(new NullReferenceException());
+
+
+            var httpResponse = bookingController.Delete(httpRequest, BookingId);
+            var result = httpResponse.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.NotFound, result);
+        }
+
+        [TestMethod]
+        public void Delete_ShouldDeleteBooking()
+        {
+            int BookingId = 1;
+
+            BookingServiceMock.Setup(x => x.DeleteBooking(BookingId));
+
+            bookingController.Delete(httpRequest, BookingId);
 
             BookingServiceMock.Verify(x => x.DeleteBooking(BookingId));
         }
 
         [TestMethod]
-        public void BookingontrollerUpdateTest()
+        public void PutIsHttpResponse()
         {
             int BookingId = 1;
-            EFWorkUnitMock.Setup(x => x.Bookings.Update(new Booking()));
-            BookingServiceMock.Setup(x => x.UpdateBooking(new BookingDTO()));
+            BookingServiceMock.Setup(a => a.UpdateBooking(new BookingDTO() { Id = BookingId }));
 
-            BookingController controller = new BookingController(BookingServiceMock.Object, RoomServiceMock.Object, GuestServiceMock.Object);
+            var httpResponse = bookingController.Put(httpRequest, BookingId, new BookingRequest());
 
-            controller.Put(httpRequest , BookingId, new BookingRequest());       
+            Assert.IsInstanceOfType(httpResponse, typeof(HttpResponseMessage));
+        }
 
-            //Похоже суть теста в том, что бы проверить, вызовется ли в контроллере сервис метод с такими же данными 
-            BookingServiceMock.Verify(x => x.UpdateBooking(new BookingDTO() { Id = 1 }));
+        [TestMethod]
+        public void Put_ShouldReturnOK()
+        {
+            int BookingId = 1;
+            BookingServiceMock.Setup(a => a.UpdateBooking(new BookingDTO() { Id = BookingId }));
+
+            var httpResponse = bookingController.Put(httpRequest, BookingId, new BookingRequest());
+
+            var result = httpResponse.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.OK, result);
+        }
+
+        [TestMethod]
+        public void Put_ShouldReturnNotFound_WhenNullReferenceException()
+        {
+            int BookingId = 1;
+
+            BookingServiceMock.Setup(a => a.UpdateBooking(new BookingDTO() { Id = BookingId })).Throws(new NullReferenceException());
+
+            var httpResponse = bookingController.Put(httpRequest, BookingId, new BookingRequest() {});
+            var result = httpResponse.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.NotFound, result);
+        }
+
+        [TestMethod]
+        public void Put_ShouldReturnBadRequest_WhenArgumentException()
+        {
+            int BookingId = 1;
+            BookingServiceMock.Setup(a => a.UpdateBooking(new BookingDTO() { Id = BookingId })).Throws(new ArgumentException());
+
+            var httpResponse = bookingController.Put(httpRequest, BookingId, new BookingRequest() { });
+            var result = httpResponse.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, result);
+        }
+
+        [TestMethod]
+        public void Put_ShouldUpdateBooking()
+        {
+            int BookingId = 1;
+            BookingServiceMock.Setup(a => a.UpdateBooking(new BookingDTO() { Id = BookingId }));
+
+            var httpResponse = bookingController.Put(httpRequest, BookingId, new BookingRequest() { });
+
+            BookingServiceMock.Verify(x => x.UpdateBooking(new BookingDTO() { Id = BookingId }));
         }
     }
 }

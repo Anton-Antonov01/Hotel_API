@@ -40,7 +40,7 @@ namespace Hotel_API.Controllers
                 service.AddGuest(Mapper.Map<GuestRequest, GuestDTO>(guest));
                 return request.CreateResponse(HttpStatusCode.OK);
             }
-            catch
+            catch (ArgumentException ex)
             {
                 return request.CreateResponse(HttpStatusCode.BadRequest);
             }
